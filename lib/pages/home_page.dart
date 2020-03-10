@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_business/models/RestaurantModel.dart';
+import 'package:flutter_business/models/TopBanner.dart';
+import 'package:flutter_business/services/RestaurantsService.dart';
+import 'package:flutter_business/services/TopBannerService.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -8,6 +12,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int pageIdx = 0;
+  List<TopBanner> topBanner = [];
+  List<RestaurantModel> restaurants = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      topBanner = TopBannerService().getAll();
+      restaurants = RestaurantsService().getAll();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +37,7 @@ class _HomePageState extends State<HomePage> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(
-                      top: 40, left: 8, right: 8, bottom: 8),
+                      top: 0, left: 8, right: 8, bottom: 8),
                   child: Container(
                     height: screenHeight / 20,
                     child: Row(
@@ -41,6 +56,8 @@ class _HomePageState extends State<HomePage> {
                         Spacer(),
                         CircleAvatar(
                           radius: 12,
+                          backgroundImage: NetworkImage(
+                              "https://cdn2.f-cdn.com/contestentries/1316431/24595406/5ae8a3f2e4e98_thumb900.jpg"),
                         ),
                       ],
                     ),
@@ -65,8 +82,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     child: TextField(
+                      autofocus: false,
                       decoration: InputDecoration(
                         icon: Icon(Icons.search),
                         hintText: "Search for restaurant",
@@ -122,8 +140,87 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.only(left: 8, bottom: 8, top: 8),
                   child: Container(
                     height: screenHeight / 4,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
+                    child: ListView.builder(
+                      itemCount: topBanner.length,
+                      itemBuilder: (BuildContext context, index) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width / 1.5,
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: topBanner[index].bgColor,
+                            borderRadius: BorderRadius.circular(8),
+                            image: topBanner[index].image != ""
+                                ? DecorationImage(
+                                    colorFilter: ColorFilter.mode(
+                                        Colors.black.withOpacity(0.3),
+                                        BlendMode.darken),
+                                    image: NetworkImage(topBanner[index].image),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(3),
+                                  child: Text(
+                                    topBanner[index].tag,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: topBanner[index].tagColor,
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(4),
+                                      bottomRight: Radius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    topBanner[index].title,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 42,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Spacer(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    topBanner[index].code,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 16.0, bottom: 10),
+                                  child: Text(
+                                    topBanner[index].subtitle,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      scrollDirection: Axis.horizontal,
                     ),
                   ),
                 ),
@@ -132,17 +229,192 @@ class _HomePageState extends State<HomePage> {
                       const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   child: Container(
                     height: screenHeight / 8,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: CircleAvatar(),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "Express\nDelivery",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: CircleAvatar(),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "Safety\nSealed",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: CircleAvatar(),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "Gread\nOffers",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: CircleAvatar(),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "New\nArrivals",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: CircleAvatar(),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "Trending\nPlaces",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8, bottom: 8, top: 8),
                   child: Container(
-                    height: screenHeight / 12,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
+                    height: screenHeight / 19,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                          height: double.infinity,
+                          width: 64,
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -150,8 +422,90 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(8),
                   child: Container(
                     height: screenHeight / 3,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
+                    child: ListView.builder(
+                      itemCount: restaurants.length,
+                      itemBuilder: (BuildContext context, index) {
+                        return Container(
+                          height: screenHeight / 10,
+                          margin: EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Expanded(
+                                flex: 3,
+                                child: Container(
+                                  margin: EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                            restaurants[index].image),
+                                        fit: BoxFit.cover,
+                                      )),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 8,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        restaurants[index].title,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        restaurants[index].subtitle,
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        restaurants[index].description,
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        restaurants[index].sale,
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      restaurants[index].rate,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
